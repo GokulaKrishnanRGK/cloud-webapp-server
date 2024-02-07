@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: ${CSYE6225_PSQL_DB_CONNSTR}
+    username: ${CSYE6225_PSQL_DB_USER}
+    password: ${CSYE6225_PSQL_DB_PWD}
+    driverClassName: org.postgresql.Driver
+server:
+  port: 8080

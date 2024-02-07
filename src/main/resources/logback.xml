@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <logger name="org.springframework" level="ERROR" additivity="true"/>
+  <logger name="org.apache.catalina" level="ERROR" additivity="true"/>>
+  <logger name="com.neu.csye6225" level="INFO" additivity="true"/>
+  <logger name="org.hibernate" level="ERROR" additivity="true"/>
+  <logger name="org.hibernate.SQL" level="ERROR" additivity="true"/>
+  <logger name="org.hibernate.type.descriptor.sql" level="ERROR" additivity="true"/>
+
+  <!--  <property file="F:/NEU/Cloud/assignments/Java/logger_config/logger.properties"/>-->
+  <!--  <include file="F:/NEU/Cloud/assignments/Java/logger_config/logger.xml"/>-->
+
+  <property file="${CSYE6225_LOGGER_CONFIG}/logger.properties"/>
+  <include file="${CSYE6225_LOGGER_CONFIG}/logger.xml"/>
+
+</configuration>
