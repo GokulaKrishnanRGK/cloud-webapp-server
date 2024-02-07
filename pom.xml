@@ -14,7 +14,7 @@
   <name>assignment1</name>
   <description>assignment1</description>
   <properties>
-    <java.version>17</java.version>
+    <java.version>11</java.version>
   </properties>
   <dependencies>
     <dependency>
@@ -61,6 +61,10 @@
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-dbcp</artifactId>
       <version>9.0.80</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
     </dependency>
   </dependencies>
 

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,23 +23,23 @@ public class HealthController {
   private SessionFactory sessionFactory;
 
   @RequestMapping(value = "/healthz", produces = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<Void> getDbHealth(HttpServletRequest request) throws IOException {
-    int statusCode;
+  public ResponseEntity<String> getDbHealth(HttpServletRequest request) throws IOException {
+    HttpStatus httpStatus;
     if (!request.getMethod().equals("GET")) {
-      statusCode = 405;
+      httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
     } else if (!request.getParameterMap().isEmpty() || request.getReader().ready()) {
-      statusCode = 400;
+      httpStatus = HttpStatus.BAD_REQUEST;
     } else {
       try (Session session = sessionFactory.openSession()) {
         session.createNativeQuery("SELECT 1").getSingleResult();
-        statusCode = 200;
+        httpStatus = HttpStatus.OK;
       } catch (Exception e) {
-        statusCode = 503;
+        httpStatus = HttpStatus.SERVICE_UNAVAILABLE;
         logger.error("DB Health check failed with exception, ", e);
       }
     }
-    logger.info("Health check status: HTTP {}", statusCode);
-    return ResponseEntity.status(statusCode).cacheControl(CacheControl.noCache()).cacheControl(CacheControl.noStore()).build();
+    logger.info("Health check status: HTTP {}", httpStatus);
+    return ResponseEntity.status(httpStatus).cacheControl(CacheControl.noCache()).cacheControl(CacheControl.noStore()).build();
   }
 
 }

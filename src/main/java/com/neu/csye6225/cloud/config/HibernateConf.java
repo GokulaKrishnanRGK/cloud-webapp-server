@@ -28,7 +28,7 @@ public class HibernateConf {
   public LocalSessionFactoryBean sessionFactory() {
     LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
     sessionFactory.setDataSource(dataSource());
-    sessionFactory.setPackagesToScan(new String[]{"com.neu.csye6225.cloud.entity"});
+    sessionFactory.setPackagesToScan(new String[]{"com.neu.csye6225.cloud.model"});
     sessionFactory.setHibernateProperties(hibernateProperties());
     return sessionFactory;
   }
@@ -54,7 +54,7 @@ public class HibernateConf {
     Properties hibernateProperties = new Properties();
     hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "update");
     hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-    hibernateProperties.setProperty("show_sql", "false");
+    hibernateProperties.setProperty("show_sql", "true");
     return hibernateProperties;
   }
 }

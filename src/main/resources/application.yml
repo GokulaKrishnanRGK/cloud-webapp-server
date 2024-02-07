@@ -4,5 +4,8 @@ spring:
     username: ${CSYE6225_PSQL_DB_USER}
     password: ${CSYE6225_PSQL_DB_PWD}
     driverClassName: org.postgresql.Driver
+  mvc:
+    converters:
+      preferred-json-mapper: gson
 server:
   port: 8080
