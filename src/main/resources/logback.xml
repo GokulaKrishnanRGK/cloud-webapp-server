@@ -13,7 +13,42 @@
   <logger name="org.hibernate.SQL" level="ERROR" additivity="true"/>
   <logger name="org.hibernate.type.descriptor.sql" level="ERROR" additivity="true"/>
 
-  <property file="${CSYE6225_LOGGER_CONFIG}/logger.properties"/>
-  <include file="${CSYE6225_LOGGER_CONFIG}/logger.xml"/>
+  <if condition='isDefined("CSYE6225_LOGGER_CONFIG")'>
+    <then>
+      <property file="${CSYE6225_LOGGER_CONFIG}/logger.properties"/>
+      <include file="${CSYE6225_LOGGER_CONFIG}/logger.xml"/>
+    </then>
+    <else>
+      <property name="LOG_FILE_PATH" value="/tmp"/>
+      <property name="LOGGER_FILE_NAME" value="csye_6225"/>
+      <timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
+      <timestamp key="today" datePattern="yyyyMMdd"/>
+      <timestamp key="logDirByDay" datePattern="yyyy-MM-dd"/>
+
+      <appender name="MAIN_LOGGER" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+          <key>SIFT_KEY</key>
+          <defaultValue>${LOGGER_FILE_NAME}</defaultValue>
+        </discriminator>
+        <sift>
+          <appender name="FILE-${SIFT_KEY}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file></file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+              <fileNamePattern>${LOG_FILE_PATH}/${SIFT_KEY}_%d{yyyy-MM-dd}.log
+              </fileNamePattern>
+            </rollingPolicy>
+            <encoder>
+              <pattern>[%d{dd MMM yyyy;HH:mm:ss.SSS}][%.-1level][%10.10logger{10}][%X{USER_SESSION_KEY}] %msg%n
+              </pattern>
+            </encoder>
+          </appender>
+        </sift>
+      </appender>
+
+      <root level="debug">
+        <appender-ref ref="MAIN_LOGGER"/>
+      </root>
+    </else>
+  </if>
 
 </configuration>

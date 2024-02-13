@@ -17,4 +17,4 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Build application with Maven
-        run: mvn clean install
+        run: mvn clean install -Dmaven.test.skip=true

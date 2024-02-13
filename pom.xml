@@ -71,6 +71,10 @@
       <artifactId>okhttp</artifactId>
       <version>4.9.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>janino</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
