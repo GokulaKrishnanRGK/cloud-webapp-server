@@ -33,3 +33,9 @@
 2. **Add BASIC Auth**
    - Add BASIC Auth support for user authorization
 3. **Add URL filter for non-configured URL patterns
+
+### Version #3
+1. **Add Integration tests**
+   - Add integration test to Create and update user
+2. **Add workflow**
+   - Add workflow to configure DB server and execute tests in Git Actions - Workflow
