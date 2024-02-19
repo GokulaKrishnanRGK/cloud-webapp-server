@@ -86,10 +86,10 @@ class CloudApplicationTests {
   @Test
   @Order(3)
   public void testUpdateUser() {
-    String userUrl = "http://localhost:" + port + "/v1/user/";
+    String userUrl = "http://localhost:" + port + "/v1/user/self";
     MediaType mediaType = MediaType.parse("application/json");
     RequestBody body = RequestBody.create(updateUserRequestBody.toString(), mediaType);
-    Request request = new Request.Builder().url(userUrl + createUserResp.getId())
+    Request request = new Request.Builder().url(userUrl)
         .addHeader("Authorization",
             Credentials.basic(createUserRequestBody.get("username").getAsString(), createUserRequestBody.get("password").getAsString()))
         .put(body)

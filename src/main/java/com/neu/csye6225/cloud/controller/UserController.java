@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,53 +29,42 @@ public class UserController {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  @GetMapping(value = "/{userId}")
-  public ResponseEntity<String> getUser(@PathVariable String userId, @RequestHeader("Authorization") String authHeader) {
+  @GetMapping(value = "/self")
+  public ResponseEntity<String> getUser(@RequestHeader("Authorization") String authHeader) {
     AppResponse appResponse;
     AuthFacade authFacade = AuthFacade.getAuthFacade(authHeader);
     User authUser = this.userService.loadByUsername(authFacade.getUsername());
     if (!validateUser(authFacade, authUser)) {
       appResponse = new AppResponse(HttpStatus.UNAUTHORIZED);
     } else {
-      User currUser = this.userService.getUserById(userId);
-      if (currUser == null || !currUser.getUsername().equals(authFacade.getUsername())) {
-        appResponse = new AppResponse(HttpStatus.FORBIDDEN);
-      } else {
-        authUser.setPassword(null);
-        appResponse = new AppResponse(HttpStatus.OK, authUser);
-      }
+      authUser.setPassword(null);
+      appResponse = new AppResponse(HttpStatus.OK, authUser);
     }
     return appResponse.getResponseEntity();
   }
 
-  @PutMapping(value = "/{userId}")
-  public ResponseEntity<String> updateUser(@PathVariable String userId, @RequestBody UserDto userDto,
-      @RequestHeader("Authorization") String authHeader) {
+  @PutMapping(value = "/self")
+  public ResponseEntity<String> updateUser(@RequestBody UserDto userDto, @RequestHeader("Authorization") String authHeader) {
     AppResponse appResponse;
     AuthFacade authFacade = AuthFacade.getAuthFacade(authHeader);
     User authUser = this.userService.loadByUsername(authFacade.getUsername());
     if (!validateUser(authFacade, authUser)) {
       appResponse = new AppResponse(HttpStatus.UNAUTHORIZED);
     } else {
-      User currUser = this.userService.getUserById(userId);
-      if (currUser == null || !currUser.getUsername().equals(authFacade.getUsername())) {
-        appResponse = new AppResponse(HttpStatus.FORBIDDEN);
+      if (!authUser.getUsername().equals(userDto.getUsername())) {
+        appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Cannot update username");
+      } else if (!((userDto.getPassword() == null || StringUtils.hasLength(userDto.getPassword().trim())) && (userDto.getFirstname() == null
+          || StringUtils.hasLength(userDto.getFirstname().trim())) && (userDto.getLastname() == null || StringUtils.hasLength(
+          userDto.getLastname().trim())))) {
+        appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Empty value");
       } else {
-        if (!currUser.getUsername().equals(userDto.getUsername())) {
-          appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Cannot update username");
-        } else if (!((userDto.getPassword() == null || StringUtils.hasLength(userDto.getPassword().trim())) &&
-            (userDto.getFirstname() == null || StringUtils.hasLength(userDto.getFirstname().trim())) &&
-            (userDto.getLastname() == null || StringUtils.hasLength(userDto.getLastname().trim())))) {
-          appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Empty value");
-        } else {
-          if (!userDto.isUserSame(authUser) || !this.passwordEncoder.matches(userDto.getPassword(), authUser.getPassword())) {
-            authUser.setFirstname(userDto.getFirstname());
-            authUser.setLastname(userDto.getLastname());
-            authUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-            this.userService.persistUser(authUser);
-          }
-          appResponse = new AppResponse(HttpStatus.OK);
+        if (!userDto.isUserSame(authUser) || !this.passwordEncoder.matches(userDto.getPassword(), authUser.getPassword())) {
+          authUser.setFirstname(userDto.getFirstname());
+          authUser.setLastname(userDto.getLastname());
+          authUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+          this.userService.persistUser(authUser);
         }
+        appResponse = new AppResponse(HttpStatus.OK);
       }
     }
     return appResponse.getResponseEntity();

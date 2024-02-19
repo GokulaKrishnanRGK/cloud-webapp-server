@@ -17,7 +17,7 @@ public class CustomURLFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     String requestURI = request.getRequestURI();
-    if (!(requestURI.matches("/healthz") || requestURI.matches("/v1/user") || requestURI.matches("/v1/user/.*"))) {
+    if (!(requestURI.matches("/healthz") || requestURI.matches("/v1/user") || requestURI.matches("/v1/user/self"))) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
