@@ -35,7 +35,7 @@ locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
 
-source "googlecompute" "webapp-source" {
+source "googlecompute" "webapp-source"{
   image_name          = "webapp-${local.timestamp}"
   project_id          = var.PROJECT
   machine_type        = var.machine_type
