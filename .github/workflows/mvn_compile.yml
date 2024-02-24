@@ -16,8 +16,27 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Write spring config from secrets
+        uses: DamianReeves/write-file-action@master
+        with:
+          path: 'src/main/resources/application.yml'
+          write-mode: overwrite
+          contents: |
+            spring:
+              datasource:
+                url: ${{ secrets.CSYE6225_MSQL_DB_CONNSTR }}
+                username: ${{ secrets.CSYE6225_MSQL_DB_USER }}
+                password: ${{ secrets.CSYE6225_MSQL_DB_PWD }}
+                driverClassName: com.mysql.cj.jdbc.Driver
+              mvc:
+                converters:
+                  preferred-json-mapper: gson
+            server:
+              port: ${{ secrets.CSYE6225_SERVER_PORT }}
+
       - name: Build application with Maven
-        run: mvn clean install -Dmaven.test.skip=true
+        run: mvn clean install
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main

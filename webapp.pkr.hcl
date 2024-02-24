@@ -65,10 +65,9 @@ build {
       "sudo mkdir -p /home/csye6225/webapp",
       "sudo mv /tmp/webapp-0.0.1-SNAPSHOT.jar /home/csye6225/webapp",
       "sudo mv /tmp/webapp.service /etc/systemd/system",
+      "sudo touch /home/csye6225/webapp/userdata.properties",
       "sudo chown -R csye6225:csye6225 /home/csye6225",
-      "sudo chmod -R 755 /home/csye6225",
-      "sudo chown csye6225:csye6225 /etc/systemd/system/webapp.service",
-      "sudo chmod 755 /etc/systemd/system/webapp.service",
+      "sudo chmod -R 750 /home/csye6225",
       "sudo usermod csye6225 --shell /usr/sbin/nologin",
       "cd"
     ]

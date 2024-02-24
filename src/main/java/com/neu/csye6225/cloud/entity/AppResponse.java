@@ -1,6 +1,7 @@
 package com.neu.csye6225.cloud.entity;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
@@ -15,10 +16,12 @@ public class AppResponse {
 
   public AppResponse(HttpStatusCode status, Object body) {
     this.status = status;
+    Gson gson = new Gson();
     if (body instanceof String) {
-      this.body = (String) body;
+      JsonObject jsonObject = new JsonObject();
+      jsonObject.addProperty("message", (String) body);
+      this.body = gson.toJson(jsonObject);
     } else {
-      Gson gson = new Gson();
       this.body = gson.toJson(body);
     }
   }

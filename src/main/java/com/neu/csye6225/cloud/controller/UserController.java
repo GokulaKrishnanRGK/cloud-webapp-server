@@ -51,7 +51,7 @@ public class UserController {
     if (!validateUser(authFacade, authUser)) {
       appResponse = new AppResponse(HttpStatus.UNAUTHORIZED);
     } else {
-      if (!authUser.getUsername().equals(userDto.getUsername())) {
+      if (userDto.getUsername() != null && !authUser.getUsername().equals(userDto.getUsername())) {
         appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Cannot update username");
       } else if (!((userDto.getPassword() == null || StringUtils.hasLength(userDto.getPassword().trim())) && (userDto.getFirstname() == null
           || StringUtils.hasLength(userDto.getFirstname().trim())) && (userDto.getLastname() == null || StringUtils.hasLength(

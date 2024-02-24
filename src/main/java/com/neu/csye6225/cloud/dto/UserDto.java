@@ -1,6 +1,5 @@
 package com.neu.csye6225.cloud.dto;
 
-import com.neu.csye6225.cloud.entity.AuthFacade;
 import com.neu.csye6225.cloud.model.User;
 import org.springframework.util.StringUtils;
 
@@ -12,13 +11,17 @@ public class UserDto {
   private String password;
 
   public boolean isValid() {
-    return StringUtils.hasLength(this.username.trim())
+    return this.username != null
+        && StringUtils.hasLength(this.username.trim())
+        && this.firstname != null
         && StringUtils.hasLength(this.firstname.trim())
+        && this.lastname != null
         && StringUtils.hasLength(this.lastname.trim())
+        && this.password != null
         && StringUtils.hasLength(this.password.trim());
   }
 
-  public boolean isUserSame(User user){
+  public boolean isUserSame(User user) {
     return this.firstname.equals(user.getUsername()) && this.lastname.equals(user.getLastname());
   }
 
