@@ -30,7 +30,7 @@
 1. **Add user support**
    - Add support for CRUD operations for User object model
    - Endpoint: /v1/user
-2. **Add BASIC Auth**
+2. **Add BASIC Auth** sdafasd
    - Add BASIC Auth support for user authorization
 3. **Add URL filter for non-configured URL patterns
 
