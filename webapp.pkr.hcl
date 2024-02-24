@@ -19,9 +19,9 @@ variable "ssh_username" {
   default = "centos"
 }
 
-/*variable "machine_type" {
+variable "machine_type" {
   default = "custom-1-2048"
-}*/
+}
 
 variable "PROJECT" {
   default = "csye6225-dev-415001"
