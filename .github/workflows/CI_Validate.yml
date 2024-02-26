@@ -7,6 +7,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.CSYE6225_MSQL_DB_PWD }}
+          MYSQL_DATABASE: ${{ secrets.CSYE6225_MSQL_DB_NAME }}
+          MYSQL_USER: test
+          MYSQL_PASSWORD: ${{ secrets.CSYE6225_MSQL_DB_PWD }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     
     steps:
       - uses: actions/checkout@v3
