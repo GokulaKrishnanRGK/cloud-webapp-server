@@ -27,8 +27,10 @@ public class HealthController {
     HttpStatus httpStatus;
     if (!request.getMethod().equals("GET")) {
       httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
+      logger.error("Health check API - Method not allowed");
     } else if (!request.getParameterMap().isEmpty() || request.getReader().ready()) {
       httpStatus = HttpStatus.BAD_REQUEST;
+      logger.error("Health check API - Bad Request");
     } else {
       try (Session session = sessionFactory.openSession()) {
         session.createNativeQuery("SELECT 1").getSingleResult();

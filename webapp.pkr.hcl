@@ -12,7 +12,7 @@ variable "region" {
 }
 
 variable "zone" {
-  default = "us-east1-b"
+  default = "us-east1-c"
 }
 
 variable "ssh_username" {
@@ -68,6 +68,9 @@ build {
       "sudo touch /home/csye6225/webapp/userdata.properties",
       "sudo chown -R csye6225:csye6225 /home/csye6225",
       "sudo chmod -R 750 /home/csye6225",
+      "sudo mkdir /var/log/csye6225",
+      "sudo chown -R csye6225:csye6225 /var/log/csye6225",
+      "sudo chmod -R 750 /var/log/csye6225",
       "sudo usermod csye6225 --shell /usr/sbin/nologin",
       "cd"
     ]
@@ -75,5 +78,9 @@ build {
 
   provisioner "shell" {
     script = "./webapp_setup.sh"
+  }
+
+  provisioner "shell" {
+    script = "./install_ops_agent.sh"
   }
 }

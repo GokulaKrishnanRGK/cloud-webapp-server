@@ -6,6 +6,8 @@ import com.neu.csye6225.cloud.entity.AuthFacade;
 import com.neu.csye6225.cloud.model.User;
 import com.neu.csye6225.cloud.service.UserService;
 import com.neu.csye6225.cloud.util.MiscUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/v1/user")
 public class UserController {
 
+  private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
   @Autowired
   private UserService userService;
 
@@ -34,11 +38,14 @@ public class UserController {
     AppResponse appResponse;
     AuthFacade authFacade = AuthFacade.getAuthFacade(authHeader);
     User authUser = this.userService.loadByUsername(authFacade.getUsername());
+    logger.debug("Get user: {}", authFacade.getUsername());
     if (!validateUser(authFacade, authUser)) {
       appResponse = new AppResponse(HttpStatus.UNAUTHORIZED);
+      logger.error("Get User: Unauthorized");
     } else {
       authUser.setPassword(null);
       appResponse = new AppResponse(HttpStatus.OK, authUser);
+      logger.info("Get User success: {}", authUser.getUsername());
     }
     return appResponse.getResponseEntity();
   }
@@ -48,21 +55,26 @@ public class UserController {
     AppResponse appResponse;
     AuthFacade authFacade = AuthFacade.getAuthFacade(authHeader);
     User authUser = this.userService.loadByUsername(authFacade.getUsername());
+    logger.debug("Update user: {}", authFacade.getUsername());
     if (!validateUser(authFacade, authUser)) {
       appResponse = new AppResponse(HttpStatus.UNAUTHORIZED);
+      logger.error("Update user: Unauthorized");
     } else {
       if (userDto.getUsername() != null && !authUser.getUsername().equals(userDto.getUsername())) {
         appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Cannot update username");
+        logger.warn("Update user: Cannot update username");
       } else if (!((userDto.getPassword() == null || StringUtils.hasLength(userDto.getPassword().trim())) && (userDto.getFirstname() == null
           || StringUtils.hasLength(userDto.getFirstname().trim())) && (userDto.getLastname() == null || StringUtils.hasLength(
           userDto.getLastname().trim())))) {
         appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Empty value");
+        logger.warn("Update user: Empty value");
       } else {
         if (!userDto.isUserSame(authUser) || !this.passwordEncoder.matches(userDto.getPassword(), authUser.getPassword())) {
           authUser.setFirstname(userDto.getFirstname());
           authUser.setLastname(userDto.getLastname());
           authUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
           this.userService.persistUser(authUser);
+          logger.info("Update user success: {}", authUser.getUsername());
         }
         appResponse = new AppResponse(HttpStatus.OK);
       }
@@ -73,18 +85,23 @@ public class UserController {
   @PostMapping
   public ResponseEntity<String> createUser(@RequestBody UserDto userDto) {
     AppResponse appResponse;
+    logger.debug("Create user API");
     if (!userDto.isValid()) {
       appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Missing parameters");
+      logger.warn("Create user: Missing parameters");
     } else if (!MiscUtil.isValidEmail(userDto.getUsername())) {
       appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Invalid Email input");
+      logger.warn("Create user: Invalid Email input");
     } else if (this.userService.checkUsernameExist(userDto.getUsername())) {
       appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "User - Email already exist");
+      logger.warn("Create user: User - Email already exist");
     } else {
       User user = new User(userDto);
       user.setPassword(passwordEncoder.encode(userDto.getPassword()));
       this.userService.createUser(user);
       user.setPassword(null);
       appResponse = new AppResponse(HttpStatus.CREATED, user);
+      logger.info("Create user success: {}", user.getUsername());
     }
     return appResponse.getResponseEntity();
   }
