@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.sql.Timestamp;
 
@@ -34,6 +35,9 @@ public class User {
 
   @Column(name = "account_updated")
   private Timestamp accountUpdated;
+
+  @OneToOne(mappedBy = "user")
+  private Verify verify;
 
   public User() {
   }
@@ -106,5 +110,13 @@ public class User {
 
   public void setAccountUpdated(Timestamp accountUpdated) {
     this.accountUpdated = accountUpdated;
+  }
+
+  public Verify getVerify() {
+    return verify;
+  }
+
+  public void setVerify(Verify verify) {
+    this.verify = verify;
   }
 }

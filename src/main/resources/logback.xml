@@ -2,7 +2,7 @@
 <configuration>
 
   <logger name="org.springframework" level="ERROR" additivity="true"/>
-  <logger name="org.apache.catalina" level="ERROR" additivity="true"/>>
+  <logger name="org.apache.catalina" level="ERROR" additivity="true"/>
   <logger name="com.neu.csye6225" level="DEBUG" additivity="true"/>
 
   <logger name="org.hibernate" level="INFO" additivity="true"/>

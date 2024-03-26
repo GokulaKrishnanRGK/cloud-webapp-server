@@ -3,6 +3,7 @@ package com.neu.csye6225.cloud;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.neu.csye6225.cloud.model.User;
+import com.neu.csye6225.cloud.model.Verify;
 import com.neu.csye6225.cloud.service.UserService;
 import jakarta.annotation.PostConstruct;
 import okhttp3.Credentials;
@@ -85,6 +86,19 @@ class CloudApplicationTests {
 
   @Test
   @Order(3)
+  public void testVerifyUser() {
+    Verify verify = this.userService.loadByUsername(createUserResp.getUsername()).getVerify();
+    String userUrl = "http://localhost:" + port + "/v1/user/verify?token=" + verify.getToken();
+    Request request = new Request.Builder().url(userUrl).get().build();
+    try (Response response = httpClient.newCall(request).execute()) {
+      Assertions.assertEquals(202, response.code());
+    } catch (Exception e) {
+      logger.error("Exception in testVerifyUser: ", e);
+    }
+  }
+
+  @Test
+  @Order(4)
   public void testUpdateUser() {
     String userUrl = "http://localhost:" + port + "/v1/user/self";
     MediaType mediaType = MediaType.parse("application/json");

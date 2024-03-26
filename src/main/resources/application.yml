@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${CSYE6225_MSQL_DB_CONNSTR}
-    username: ${CSYE6225_MSQL_DB_USER}
-    password: ${CSYE6225_MSQL_DB_PWD}
+    url: ${CSYE6225_SQL_DB_CONNSTR}
+    username: ${CSYE6225_SQL_DB_USER}
+    password: ${CSYE6225_SQL_DB_PWD}
     driverClassName: com.mysql.cj.jdbc.Driver
   mvc:
     converters:
