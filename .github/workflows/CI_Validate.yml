@@ -44,6 +44,9 @@ jobs:
               mvc:
                 converters:
                   preferred-json-mapper: gson
+              cloud:
+                  gcp:
+                    project-id: ${CSYE6225_PROJECT_ID}
             server:
               port: ${{ secrets.CSYE6225_SERVER_PORT }}
 

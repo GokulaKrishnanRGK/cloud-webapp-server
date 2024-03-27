@@ -48,6 +48,9 @@ jobs:
                   preferred-json-mapper: gson
             server:
               port: ${{ secrets.CSYE6225_SERVER_PORT }}
+              cloud:
+                gcp:
+                  project-id: ${CSYE6225_PROJECT_ID}
 
       - name: Build application with Maven
         run: mvn clean install

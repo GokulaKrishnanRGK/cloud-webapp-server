@@ -7,5 +7,8 @@ spring:
   mvc:
     converters:
       preferred-json-mapper: gson
+  cloud:
+    gcp:
+      project-id: ${CSYE6225_PROJECT_ID}
 server:
   port: 8080
