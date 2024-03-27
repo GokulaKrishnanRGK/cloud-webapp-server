@@ -31,6 +31,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Google cloud auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
       - name: Write spring config from secrets
         uses: DamianReeves/write-file-action@master
         with:
@@ -54,14 +62,6 @@ jobs:
 
       - name: Build application with Maven
         run: mvn clean install
-
-      - name: Google cloud auth
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
