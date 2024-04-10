@@ -12,9 +12,9 @@ import com.neu.csye6225.cloud.service.UserService;
 import com.neu.csye6225.cloud.service.VerifyService;
 import com.neu.csye6225.cloud.util.MiscUtil;
 import java.sql.Timestamp;
-import java.util.UUID;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,10 +61,15 @@ public class UserController {
       appResponse = new AppResponse(HttpStatus.UNAUTHORIZED);
       logger.error("Get User: Unauthorized");
     } else {
-      authUser.setPassword(null);
-      authUser.setVerify(null);
-      appResponse = new AppResponse(HttpStatus.OK, authUser);
-      logger.info("Get User success: {}", authUser.getUsername());
+      if (!authUser.getVerify().isVerified()) {
+        appResponse = new AppResponse(HttpStatus.FORBIDDEN);
+        logger.error("Update user: user not verified, forbidden");
+      } else {
+        authUser.setPassword(null);
+        authUser.setVerify(null);
+        appResponse = new AppResponse(HttpStatus.OK, authUser);
+        logger.info("Get User success: {}", authUser.getUsername());
+      }
     }
     return appResponse.getResponseEntity();
   }
@@ -80,23 +84,28 @@ public class UserController {
       appResponse = new AppResponse(HttpStatus.UNAUTHORIZED);
       logger.error("Update user: Unauthorized");
     } else {
-      if (userDto.getUsername() != null && !authUser.getUsername().equals(userDto.getUsername())) {
-        appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Cannot update username");
-        logger.warn("Update user: Cannot update username");
-      } else if (!((userDto.getPassword() == null || StringUtils.hasLength(userDto.getPassword().trim())) && (userDto.getFirstname() == null
-          || StringUtils.hasLength(userDto.getFirstname().trim())) && (userDto.getLastname() == null || StringUtils.hasLength(
-          userDto.getLastname().trim())))) {
-        appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Empty value");
-        logger.warn("Update user: Empty value");
+      if (!authUser.getVerify().isVerified()) {
+        appResponse = new AppResponse(HttpStatus.FORBIDDEN);
+        logger.error("Update user: user not verified, forbidden");
       } else {
-        if (!userDto.isUserSame(authUser) || !this.passwordEncoder.matches(userDto.getPassword(), authUser.getPassword())) {
-          authUser.setFirstname(userDto.getFirstname());
-          authUser.setLastname(userDto.getLastname());
-          authUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-          this.userService.persistUser(authUser);
-          logger.info("Update user success: {}", authUser.getUsername());
+        if (userDto.getUsername() != null && !authUser.getUsername().equals(userDto.getUsername())) {
+          appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Cannot update username");
+          logger.warn("Update user: Cannot update username");
+        } else if (!((userDto.getPassword() == null || StringUtils.hasLength(userDto.getPassword().trim())) && (userDto.getFirstname()
+            == null || StringUtils.hasLength(userDto.getFirstname().trim())) && (userDto.getLastname() == null || StringUtils.hasLength(
+            userDto.getLastname().trim())))) {
+          appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Empty value");
+          logger.warn("Update user: Empty value");
+        } else {
+          if (!userDto.isUserSame(authUser) || !this.passwordEncoder.matches(userDto.getPassword(), authUser.getPassword())) {
+            authUser.setFirstname(userDto.getFirstname());
+            authUser.setLastname(userDto.getLastname());
+            authUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            this.userService.persistUser(authUser);
+            logger.info("Update user success: {}", authUser.getUsername());
+          }
+          appResponse = new AppResponse(HttpStatus.NO_CONTENT);
         }
-        appResponse = new AppResponse(HttpStatus.OK);
       }
     }
     return appResponse.getResponseEntity();
@@ -115,7 +124,7 @@ public class UserController {
     } else if (this.userService.checkUsernameExist(userDto.getUsername())) {
       logger.warn("Create user: User - Email already exist");
       User user = this.userService.loadByUsername(userDto.getUsername());
-      if(user.getVerify().isVerified()) {
+      if (user.getVerify().isVerified()) {
         appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "User - Email already exist");
         logger.warn("Create user: Verified user");
       } else {
@@ -149,20 +158,20 @@ public class UserController {
     return appResponse.getResponseEntity();
   }
 
-  @GetMapping(value="/verify")
+  @GetMapping(value = "/verify")
   public ResponseEntity<String> verifyUser(@RequestParam String token) {
     AppResponse appResponse;
     logger.debug("Verify user API");
-    if(token == null || !StringUtils.hasLength(token.trim())) {
+    if (token == null || !StringUtils.hasLength(token.trim())) {
       appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Empty token");
       logger.warn("Verify user: Empty token");
     } else {
       Verify verify = this.verifyService.getByToken(token);
-      if(verify == null) {
+      if (verify == null) {
         appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Invalid token");
         logger.warn("Verify user: Invalid token");
       } else {
-        if(isTokenExpired(verify.getGeneratedTime())) {
+        if (isTokenExpired(verify.getGeneratedTime())) {
           appResponse = new AppResponse(HttpStatus.BAD_REQUEST, "Token Expired");
           logger.warn("Verify user: Token Expired");
         } else {
@@ -177,7 +186,7 @@ public class UserController {
   }
 
   private boolean validateUser(AuthFacade authFacade, User currentUser) {
-    return currentUser != null && currentUser.getVerify().isVerified() && authFacade.isPassValid(currentUser.getPassword(), passwordEncoder);
+    return currentUser != null && authFacade.isPassValid(currentUser.getPassword(), passwordEncoder);
   }
 
   public static boolean isTokenExpired(Timestamp timestampToCheck) {
