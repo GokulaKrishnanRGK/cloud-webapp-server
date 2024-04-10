@@ -73,7 +73,7 @@ jobs:
       - name: Get
         id: get_source_name_zone
         run: |
-          read -r name zone <<< $(gcloud compute instance-groups managed list-instances ${{ secrets.MIG_NAME }} --region=${{ secrets.REGION }} | awk '/HEALTHY/{print $1, $2; exit}')
+          read -r name zone <<< $(gcloud compute instance-groups managed list-instances ${{ secrets.MIG_NAME }} --region=${{ secrets.REGION }} | awk '/RUNNING/{print $1, $2; exit}')
           echo "SOURCE_INSTANCE_NAME=$name" >> $GITHUB_ENV
           echo "ZONE=$zone" >> $GITHUB_ENV
 
