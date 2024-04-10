@@ -11,6 +11,8 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,6 +44,11 @@ public class HealthController {
     }
     logger.info("Health check status: HTTP {}", httpStatus);
     return ResponseEntity.status(httpStatus).cacheControl(CacheControl.noCache()).cacheControl(CacheControl.noStore()).build();
+  }
+
+  @GetMapping(value = "/cicd")
+  public ResponseEntity<String> cicdTest() {
+    return ResponseEntity.status(HttpStatus.OK).cacheControl(CacheControl.noCache()).build();
   }
 
 }
