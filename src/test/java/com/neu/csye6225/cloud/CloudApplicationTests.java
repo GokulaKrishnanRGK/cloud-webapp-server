@@ -110,7 +110,7 @@ class CloudApplicationTests {
         .build();
     try (Response response = httpClient.newCall(request).execute()) {
       User updatedUser = userService.getUserById(createUserResp.getId());
-      Assertions.assertEquals(200, response.code(), "Response code: " + response.code());
+      Assertions.assertEquals(204, response.code(), "Response code: " + response.code());
       Assertions.assertEquals("Sane", updatedUser.getFirstname(), "Updated Username: " + updatedUser.getFirstname());
     } catch (Exception e) {
       logger.error("Exception in testUpdateUser: ", e);
