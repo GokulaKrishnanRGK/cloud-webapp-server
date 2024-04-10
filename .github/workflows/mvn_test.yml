@@ -84,8 +84,7 @@ jobs:
           --source-instance=${{ env.SOURCE_INSTANCE_NAME }} \
           --source-instance-zone=${{ env.ZONE }} \
           --instance-template-region=${{ secrets.REGION }} \
-          --image=${{ env.SOURCE_IMAGE }} \
-          --configure-disk=device-name=${{ secrets.DISK_DEVICE_NAME }},auto-delete=true | awk 'NR==2{print $1}')" >> $GITHUB_ENV
+          --configure-disk=device-name=${{ secrets.DISK_DEVICE_NAME }},instantiate-from=custom-image,custom-image=projects/${{ secrets.CSYE6225_PROJECT_ID }}/global/images/${{ env.SOURCE_IMAGE }},auto-delete=true | awk 'NR==2{print $1}')" >> $GITHUB_ENV
 
       - name: Update Managed Instance Group with New Template
         id: update_mig

@@ -46,9 +46,4 @@ public class HealthController {
     return ResponseEntity.status(httpStatus).cacheControl(CacheControl.noCache()).cacheControl(CacheControl.noStore()).build();
   }
 
-  @GetMapping(value = "/cicd")
-  public ResponseEntity<String> cicdTest() {
-    return ResponseEntity.status(HttpStatus.OK).cacheControl(CacheControl.noCache()).build();
-  }
-
 }
