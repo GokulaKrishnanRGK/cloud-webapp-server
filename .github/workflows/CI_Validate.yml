@@ -7,18 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.CSYE6225_MSQL_DB_PWD }}
-          MYSQL_DATABASE: ${{ secrets.CSYE6225_MSQL_DB_NAME }}
-          MYSQL_USER: test
-          MYSQL_PASSWORD: ${{ secrets.CSYE6225_MSQL_DB_PWD }}
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     
     steps:
       - uses: actions/checkout@v3
@@ -36,6 +24,11 @@ jobs:
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: Start MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.CSYE6225_MSQL_DB_NAME }};" -u${{ secrets.CSYE6225_MSQL_DB_USER }} -p${{ secrets.CSYE6225_MSQL_DB_PWD }}
 
       - name: Write spring config from secrets
         uses: DamianReeves/write-file-action@master
