@@ -72,7 +72,7 @@ class CloudApplicationTests {
   @Test
   @Order(2)
   public void testCreateUser() {
-    String userUrl = "http://localhost:" + port + "/v1/user";
+    String userUrl = "http://localhost:" + port + "/v2/user";
     MediaType mediaType = MediaType.parse("application/json");
     RequestBody body = RequestBody.create(createUserRequestBody.toString(), mediaType);
     Request request = new Request.Builder().url(userUrl).post(body).build();
@@ -88,7 +88,7 @@ class CloudApplicationTests {
   @Order(3)
   public void testVerifyUser() {
     Verify verify = this.userService.loadByUsername(createUserResp.getUsername()).getVerify();
-    String userUrl = "http://localhost:" + port + "/v1/user/verify?token=" + verify.getToken();
+    String userUrl = "http://localhost:" + port + "/v2/user/verify?token=" + verify.getToken();
     Request request = new Request.Builder().url(userUrl).get().build();
     try (Response response = httpClient.newCall(request).execute()) {
       Assertions.assertEquals(202, response.code());
@@ -100,7 +100,7 @@ class CloudApplicationTests {
   @Test
   @Order(4)
   public void testUpdateUser() {
-    String userUrl = "http://localhost:" + port + "/v1/user/self";
+    String userUrl = "http://localhost:" + port + "/v2/user/self";
     MediaType mediaType = MediaType.parse("application/json");
     RequestBody body = RequestBody.create(updateUserRequestBody.toString(), mediaType);
     Request request = new Request.Builder().url(userUrl)
