@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/v1/user")
+@RequestMapping(value = "/v2/user")
 public class UserController {
 
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
