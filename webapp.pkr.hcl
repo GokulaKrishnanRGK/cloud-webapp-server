@@ -79,9 +79,6 @@ source "amazon-ebs" "ec2-ami" {
   instance_type            = var.aws_instance_type
   ssh_username             = var.aws_ssh_username
   ami_users                = var.aws_ami_users
-  access_key               = var.AWS_ACCESS_KEY
-  secret_key               = var.AWS_SECRET_ACCESS_KEY
-  profile                  = var.AWS_PROFILE
   ssh_timeout              = "15m"
   ssh_handshake_attempts   = 50
   ssh_keep_alive_interval  = "20s"
