@@ -149,7 +149,7 @@ jobs:
           set -euo pipefail
           aws autoscaling update-auto-scaling-group \
             --auto-scaling-group-name "${{ secrets.ASG_NAME }}" \
-            --launch-template "LaunchTemplateName=${{ secrets.LAUNCH_TEMPLATE_NAME }},Version=$Latest"
+            --launch-template "LaunchTemplateName=${{ secrets.LAUNCH_TEMPLATE_NAME }},Version='$Latest'"
 
       - name: Start Instance Refresh
         if: env.CLOUD_PROVIDER == 'aws'
