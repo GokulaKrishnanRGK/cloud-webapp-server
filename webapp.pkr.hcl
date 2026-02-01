@@ -71,21 +71,21 @@ locals {
 }
 
 source "amazon-ebs" "ec2-ami" {
-  ami_name                = "ec2-ami-${local.timestamp}"
-  communicator = "ssh"
+  ami_name                 = "ec2-ami-${local.timestamp}"
+  communicator             = "ssh"
   ssh_file_transfer_method = "scp"
-  region                  = var.region
-  source_ami              = var.aws_source_ami
-  instance_type           = var.aws_instance_type
-  ssh_username            = var.aws_ssh_username
-  ami_users               = var.aws_ami_users
-  access_key              = var.AWS_ACCESS_KEY
-  secret_key              = var.AWS_SECRET_ACCESS_KEY
-  profile                 = var.AWS_PROFILE
-  ssh_timeout             = "15m"
-  ssh_handshake_attempts  = 50
-  ssh_keep_alive_interval = "20s"
-  ssh_read_write_timeout  = "15m"
+  region                   = var.region
+  source_ami               = var.aws_source_ami
+  instance_type            = var.aws_instance_type
+  ssh_username             = var.aws_ssh_username
+  ami_users                = var.aws_ami_users
+  access_key               = var.AWS_ACCESS_KEY
+  secret_key               = var.AWS_SECRET_ACCESS_KEY
+  profile                  = var.AWS_PROFILE
+  ssh_timeout              = "15m"
+  ssh_handshake_attempts   = 50
+  ssh_keep_alive_interval  = "20s"
+  ssh_read_write_timeout   = "15m"
 }
 
 source "googlecompute" "webapp-source" {
@@ -114,7 +114,7 @@ build {
   }
 
   provisioner "file" {
-    only = ["amazon-ebs.ec2-ami"]
+    only        = ["amazon-ebs.ec2-ami"]
     source      = "./cloudwatch_config.json"
     destination = "/tmp/cloudwatch_config.json"
   }
@@ -143,12 +143,12 @@ build {
   }
 
   provisioner "shell" {
-    only = ["googlecompute.webapp-source"]
+    only   = ["googlecompute.webapp-source"]
     script = "./install_ops_agent.sh"
   }
 
   provisioner "shell" {
-    only = ["amazon-ebs.ec2-ami"]
+    only   = ["amazon-ebs.ec2-ami"]
     script = "./install_cloudwatch_agent.sh"
   }
 }

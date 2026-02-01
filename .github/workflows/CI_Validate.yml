@@ -10,6 +10,7 @@ jobs:
 
     env:
       CLOUD_PROVIDER: ${{ secrets.CLOUD_PROVIDER }}
+      TOPIC: ${{ secrets.TOPIC }}
 
     steps:
       - uses: actions/checkout@v3
