@@ -139,7 +139,7 @@ jobs:
         run: |
           set -euo pipefail
           aws ec2 create-launch-template-version \
-            --launch-template-id "${{ secrets.LAUNCH_TEMPLATE_ID }}" \
+            --launch-template-name "${{ secrets.LAUNCH_TEMPLATE_NAME }}" \
             --source-version '$Latest' \
             --launch-template-data "{\"ImageId\":\"${{ env.AMI_ID }}\"}"
 
