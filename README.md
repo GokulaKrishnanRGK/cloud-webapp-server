@@ -1,7 +1,8 @@
 # Cloud Application - Server
 
-[IaC Infrastructure Repository](https://github.com/GokulaKrishnanRGK/tf-gcp-infra)
-[Serverless Function Repository](https://github.com/GokulaKrishnanRGK/serverless-function)
+- [Serverless Function Repository](https://github.com/GokulaKrishnanRGK/serverless-function)
+- [IaC Infrastructure Repository in GCP](https://github.com/GokulaKrishnanRGK/tf-gcp-infra)
+- [IaC Infrastructure Repository in AWS](https://github.com/GokulaKrishnanRGK/tf-aws-infra)
 
 ## Features
 
