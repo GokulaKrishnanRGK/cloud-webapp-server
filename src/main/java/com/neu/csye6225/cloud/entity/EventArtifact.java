@@ -1,8 +1,5 @@
 package com.neu.csye6225.cloud.entity;
 
-import com.neu.csye6225.cloud.dao.VerifyDao;
-import com.neu.csye6225.cloud.model.Verify;
-
 public class EventArtifact {
 
   private String username;
