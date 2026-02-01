@@ -171,3 +171,4 @@ crash.log
 # For built boxes
 *.box
 
+.env

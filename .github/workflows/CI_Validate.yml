@@ -7,64 +7,100 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
+    env:
+      CLOUD_PROVIDER: ${{ secrets.CLOUD_PROVIDER }}
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Google cloud auth
-        uses: 'google-github-actions/auth@v2'
+        if: env.CLOUD_PROVIDER == 'gcp'
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+      - name: Set up Cloud SDK
+        if: env.CLOUD_PROVIDER == 'gcp'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure AWS credentials
+        if: env.CLOUD_PROVIDER == 'aws'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Start MySQL
         run: |
           sudo /etc/init.d/mysql start
           mysql -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.CSYE6225_MSQL_DB_NAME }};" -u${{ secrets.CSYE6225_MSQL_DB_USER }} -p${{ secrets.CSYE6225_MSQL_DB_PWD }}
 
-      - name: Write spring config from secrets
+      - name: Write spring config (GCP)
+        if: env.CLOUD_PROVIDER == 'gcp'
         uses: DamianReeves/write-file-action@master
         with:
-          path: 'src/main/resources/application.yml'
+          path: "src/main/resources/application.properties"
           write-mode: overwrite
           contents: |
-            spring:
-              datasource:
-                url: ${{ secrets.CSYE6225_MSQL_DB_CONNSTR }}
-                username: ${{ secrets.CSYE6225_MSQL_DB_USER }}
-                password: ${{ secrets.CSYE6225_MSQL_DB_PWD }}
-                driverClassName: com.mysql.cj.jdbc.Driver
-              mvc:
-                converters:
-                  preferred-json-mapper: gson
-              cloud:
-                  gcp:
-                    project-id: ${CSYE6225_PROJECT_ID}
-            server:
-              port: ${{ secrets.CSYE6225_SERVER_PORT }}
+            spring.datasource.url=${{ secrets.CSYE6225_MSQL_DB_CONNSTR }}
+            spring.datasource.username=${{ secrets.CSYE6225_MSQL_DB_USER }}
+            spring.datasource.password=${{ secrets.CSYE6225_MSQL_DB_PWD }}
+            spring.datasource.driverClassName=com.mysql.cj.jdbc.Driver
+            spring.mvc.converters.preferred-json-mapper=gson
+            spring.cloud.gcp.pubsub.enabled=true
+            spring.cloud.gcp.core.enabled=true
+            spring.cloud.gcp.project-id=${{ secrets.CSYE6225_PROJECT_ID }}
+            spring.profiles.active=gcp
+            server.port=${{ secrets.CSYE6225_SERVER_PORT }}
+
+      - name: Write spring config (AWS)
+        if: env.CLOUD_PROVIDER == 'aws'
+        uses: DamianReeves/write-file-action@master
+        with:
+          path: "src/main/resources/application.properties"
+          write-mode: overwrite
+          contents: |
+            spring.datasource.url=${{ secrets.CSYE6225_MSQL_DB_CONNSTR }}
+            spring.datasource.username=${{ secrets.CSYE6225_MSQL_DB_USER }}
+            spring.datasource.password=${{ secrets.CSYE6225_MSQL_DB_PWD }}
+            spring.datasource.driverClassName=com.mysql.cj.jdbc.Driver
+            spring.mvc.converters.preferred-json-mapper=gson
+            spring.cloud.gcp.pubsub.enabled=false
+            spring.cloud.gcp.core.enabled=false
+            spring.profiles.active=aws
+            server.port=${{ secrets.CSYE6225_SERVER_PORT }}
+
+      - name: Write application-aws.properties
+        if: env.CLOUD_PROVIDER == 'aws'
+        uses: DamianReeves/write-file-action@master
+        with:
+          path: "src/main/resources/application-aws.properties"
+          write-mode: overwrite
+          contents: |
+            aws.region=${{ secrets.AWS_REGION }}
 
       - name: Build application with Maven
         run: mvn clean install
 
-      - name: Setup `packer`
+      - name: Setup packer
         uses: hashicorp/setup-packer@main
         id: setup
         with:
           version: latest
 
-      - name: Run `packer init`
+      - name: Run packer init
         id: init
-        run: "packer init ./webapp.pkr.hcl"
+        run: packer init ./webapp.pkr.hcl
 
-      - name: Run `packer validate`
+      - name: Run packer validate
         id: validate
         run: |
           if ! packer validate ./webapp.pkr.hcl ; then
@@ -72,7 +108,7 @@ jobs:
             exit 1
           fi
 
-      - name: Run `packer fmt`
+      - name: Run packer fmt
         id: fmt
         run: |
           if ! packer fmt -check ./webapp.pkr.hcl ; then

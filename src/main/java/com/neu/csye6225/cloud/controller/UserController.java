@@ -7,9 +7,9 @@ import com.neu.csye6225.cloud.entity.AuthFacade;
 import com.neu.csye6225.cloud.entity.EventArtifact;
 import com.neu.csye6225.cloud.model.User;
 import com.neu.csye6225.cloud.model.Verify;
-import com.neu.csye6225.cloud.service.PubSubService;
 import com.neu.csye6225.cloud.service.UserService;
 import com.neu.csye6225.cloud.service.VerifyService;
+import com.neu.csye6225.cloud.service.pubsub.IPubSubService;
 import com.neu.csye6225.cloud.util.MiscUtil;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -37,6 +37,8 @@ public class UserController {
 
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+  private static final String TOPIC = System.getenv("TOPIC");
+
   private Gson gson = new Gson();
 
   @Autowired
@@ -49,7 +51,7 @@ public class UserController {
   private PasswordEncoder passwordEncoder;
 
   @Autowired
-  private PubSubService pubSubService;
+  private IPubSubService pubSubService;
 
   @GetMapping(value = "/self")
   public ResponseEntity<String> getUser(@RequestHeader("Authorization") String authHeader) {
@@ -151,7 +153,7 @@ public class UserController {
       user.setPassword(null);
       user.setVerify(null);
       EventArtifact eventArtifact = new EventArtifact(user.getUsername(), verify.getToken());
-      pubSubService.publishMessage("verify_email", gson.toJson(eventArtifact));
+      pubSubService.publishMessage(TOPIC, gson.toJson(eventArtifact));
       appResponse = new AppResponse(HttpStatus.CREATED, user);
       logger.info("Create user success: {}", user.getUsername());
     }
