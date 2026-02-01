@@ -112,21 +112,16 @@ jobs:
         run: |
           set -euo pipefail
           packer build -only="amazon-ebs.ec2-ami" -machine-readable . | tee packer.log
-          # machine-readable artifact id line: ... ,artifact,0,id,<builder>,<id>
-          # often id looks like: amazon-ebs:ami-xxxxxxxx or amazon-ebs:us-east-1:ami-xxxxxxxx
           RAW_ID=$(awk -F, '$0 ~ /artifact,0,id/ {print $6; exit}' packer.log)
           AMI_ID="${RAW_ID##*:}"
           echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
           echo "Built AMI: ${AMI_ID}"
 
-      # If you also have a GCP builder, adjust the -only target accordingly
       - name: Packer build (GCP)
         if: env.CLOUD_PROVIDER == 'gcp'
         run: |
           set -euo pipefail
-          # Example builder name; change to your actual builder name label in Packer
           packer build -only="googlecompute.gcp-image" -machine-readable . | tee packer.log
-          # If your packer log contains "A disk image was created: <name>", use that.
           IMAGE_NAME=$(grep -m 1 "A disk image was created" packer.log | awk '{print $NF}')
           echo "GCP_IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
           echo "Built GCP image: ${IMAGE_NAME}"
