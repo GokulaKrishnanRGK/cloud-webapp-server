@@ -37,7 +37,7 @@ public class UserController {
 
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-  private static final String TOPIC = System.getenv("TOPIC");
+  private static final String TOPIC = System.getenv().getOrDefault("TOPIC", "verify_email");
 
   private Gson gson = new Gson();
 

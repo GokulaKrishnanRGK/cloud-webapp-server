@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CLOUD_PROVIDER: ${{ secrets.CLOUD_PROVIDER }} # "gcp" or "aws"
+      CLOUD_PROVIDER: ${{ secrets.CLOUD_PROVIDER }}
+      TOPIC: ${{ secrets.TOPIC }}
 
     steps:
       - uses: actions/checkout@v3
@@ -25,9 +26,6 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      # -------------------------
-      # Cloud auth/setup (GCP)
-      # -------------------------
       - name: Google cloud auth
         if: env.CLOUD_PROVIDER == 'gcp'
         uses: google-github-actions/auth@v2
@@ -38,28 +36,19 @@ jobs:
         if: env.CLOUD_PROVIDER == 'gcp'
         uses: google-github-actions/setup-gcloud@v2
 
-      # -------------------------
-      # Cloud auth/setup (AWS)
-      # -------------------------
-      - name: Configure AWS Credentials (DEV)
+      - name: Configure AWS Credentials
         if: env.CLOUD_PROVIDER == 'aws'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_DEV_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # -------------------------
-      # MySQL (your pattern can differ; keeping your prior approach)
-      # -------------------------
       - name: Start MySQL
         run: |
           sudo /etc/init.d/mysql start
           mysql -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.CSYE6225_MSQL_DB_NAME }};" -u${{ secrets.CSYE6225_MSQL_DB_USER }} -p${{ secrets.CSYE6225_MSQL_DB_PWD }}
 
-      # -------------------------
-      # Spring config (GCP)
-      # -------------------------
       - name: Write spring config (GCP)
         if: env.CLOUD_PROVIDER == 'gcp'
         uses: DamianReeves/write-file-action@master
@@ -78,9 +67,6 @@ jobs:
             spring.profiles.active=gcp
             server.port=${{ secrets.CSYE6225_SERVER_PORT }}
 
-      # -------------------------
-      # Spring config (AWS)
-      # -------------------------
       - name: Write spring config (AWS)
         if: env.CLOUD_PROVIDER == 'aws'
         uses: DamianReeves/write-file-action@master
@@ -110,9 +96,6 @@ jobs:
       - name: Build application with Maven
         run: mvn clean install
 
-      # -------------------------
-      # Packer
-      # -------------------------
       - name: Setup packer
         uses: hashicorp/setup-packer@main
         with:
@@ -124,7 +107,6 @@ jobs:
       - name: Packer validate
         run: packer validate .
 
-      # 1) packer build uses -only, and we extract AMI for AWS
       - name: Packer build (AWS)
         if: env.CLOUD_PROVIDER == 'aws'
         run: |
@@ -149,11 +131,6 @@ jobs:
           echo "GCP_IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
           echo "Built GCP image: ${IMAGE_NAME}"
 
-      # -------------------------
-      # AWS rolling update (your reference flow)
-      # -------------------------
-
-      # Switch creds to DEMO (2nd account) after building the AMI in DEV
       - name: Configure AWS Credentials (DEMO)
         if: env.CLOUD_PROVIDER == 'aws'
         uses: aws-actions/configure-aws-credentials@v4
@@ -186,9 +163,6 @@ jobs:
           aws autoscaling start-instance-refresh \
             --auto-scaling-group-name "${{ secrets.ASG_NAME }}"
 
-      # -------------------------
-      # GCP rolling update (your existing flow) - unchanged
-      # -------------------------
       - name: Get source instance name + zone (GCP)
         if: env.CLOUD_PROVIDER == 'gcp'
         run: |
